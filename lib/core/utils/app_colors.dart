@@ -15,6 +15,7 @@ abstract class AppColors {
   // ─────────────────────────────
   static const darkScaffoldBgColor = Color(0xff19191c);
   static const darkTextColor = Color(0xffFFFFFF);
+  static const darkNavBarBgColor = Color(0xff2d2d2d);
 
   static const darkActiveButtonColor = Color(0xff3B82F6);
   static const darkInactiveButtonColor = Color(0xffA1A1AA);

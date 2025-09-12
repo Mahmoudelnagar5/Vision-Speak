@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/home/presentation/views/main_view.dart';
 import '../../features/splash/presentation/views/splash_view.dart';
 
 abstract class AppRouter {
   static const String splashView = '/';
-  static const String onBoardingView = '/onBoardingView';
-  static const String signInView = '/signInView';
-  static const String signUpView = '/signUpView';
-  static const String homeView = '/auth/callback';
-  static const String profileView = '/profileView';
+
+  static const String mainView = '/mainView';
+  static const String homeView = '/homeView';
 
   static final router = GoRouter(
     initialLocation: splashView,
@@ -19,6 +18,22 @@ abstract class AppRouter {
         path: splashView,
         pageBuilder: (context, state) => CustomTransitionPage(
           child: const SplashView(),
+          key: state.pageKey,
+          transitionsBuilder: _transitionsBuilder,
+        ),
+      ),
+      GoRoute(
+        path: homeView,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const SplashView(),
+          key: state.pageKey,
+          transitionsBuilder: _transitionsBuilder,
+        ),
+      ),
+      GoRoute(
+        path: mainView,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const MainView(),
           key: state.pageKey,
           transitionsBuilder: _transitionsBuilder,
         ),

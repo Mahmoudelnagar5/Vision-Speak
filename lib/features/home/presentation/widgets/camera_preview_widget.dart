@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/helper/functions/camera_functions.dart';
@@ -12,6 +13,7 @@ class CameraPreviewWidget extends StatefulWidget {
   final int pointers;
   final VoidCallback onPointersDown;
   final VoidCallback onPointersUp;
+  final Function(double)? onScaleUpdate;
 
   const CameraPreviewWidget({
     super.key,
@@ -23,6 +25,7 @@ class CameraPreviewWidget extends StatefulWidget {
     required this.pointers,
     required this.onPointersDown,
     required this.onPointersUp,
+    this.onScaleUpdate,
   });
 
   @override
@@ -45,13 +48,21 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget> {
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
+    debugPrint('Scale start: ${details.pointerCount} pointers');
     setState(() {
       _localCurrentScale = widget.currentScale;
     });
   }
 
   Future<void> _handleScaleUpdate(ScaleUpdateDetails details) async {
-    if (widget.pointers != 2) {
+    // Debug: Print pointer and scale information
+    debugPrint(
+      'Pointers: ${details.pointerCount}, Scale: ${details.scale}, Current: $_localCurrentScale',
+    );
+
+    // Only allow zoom when there are exactly 2 pointers (fingers)
+    if (details.pointerCount != 2) {
+      debugPrint('Zoom blocked: Not exactly 2 pointers');
       return;
     }
 
@@ -60,18 +71,22 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget> {
       widget.maxZoom,
     );
 
-    await handleZoomUpdate(
-      widget.controller,
-      _localCurrentScale,
-      widget.minZoom,
-      widget.maxZoom,
-      _localCurrentScale,
-      details,
-    );
+    // Apply zoom to camera controller
+    try {
+      await widget.controller.setZoomLevel(newScale);
 
-    setState(() {
-      _localCurrentScale = newScale;
-    });
+      // Notify parent widget of the scale update
+      widget.onScaleUpdate?.call(newScale);
+
+      setState(() {
+        _localCurrentScale = newScale;
+      });
+
+      debugPrint('Zoom applied successfully: $newScale');
+    } catch (e) {
+      // Handle zoom errors gracefully
+      debugPrint('Zoom error: $e');
+    }
   }
 
   void _onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
@@ -80,22 +95,26 @@ class _CameraPreviewWidgetState extends State<CameraPreviewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: (_) => widget.onPointersDown(),
-      onPointerUp: (_) => widget.onPointersUp(),
-      child: CameraPreview(
-        widget.controller,
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onScaleStart: _handleScaleStart,
-              onScaleUpdate: _handleScaleUpdate,
-              onTapDown: (TapDownDetails details) =>
-                  _onViewFinderTap(details, constraints),
-            );
-          },
-        ),
+    return CameraPreview(
+      widget.controller,
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onScaleStart: (details) {
+              widget.onPointersDown();
+              _handleScaleStart(details);
+            },
+            onScaleUpdate: (details) {
+              _handleScaleUpdate(details);
+            },
+            onScaleEnd: (details) {
+              widget.onPointersUp();
+            },
+            onTapDown: (TapDownDetails details) =>
+                _onViewFinderTap(details, constraints),
+          );
+        },
       ),
     );
   }

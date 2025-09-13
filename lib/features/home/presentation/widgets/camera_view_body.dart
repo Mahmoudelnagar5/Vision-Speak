@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
@@ -47,6 +48,9 @@ class _CameraViewBodyState extends State<CameraViewBody>
 
   Future<void> _initializeCamera() async {
     try {
+      // First, get all available cameras
+      _cameras = await availableCameras();
+
       final result = await initializeCamera();
       if (result['controller'] != null) {
         _controller = result['controller'];
@@ -113,15 +117,43 @@ class _CameraViewBodyState extends State<CameraViewBody>
   }
 
   Future<void> _onSwitchCamera() async {
-    if (_controller != null && _cameras.isNotEmpty) {
+    // Debug: Print camera information
+
+    if (_controller != null && _cameras.isNotEmpty && _cameras.length > 1) {
       try {
-        await switchCamera(_controller!, _cameras);
+        // Get the next camera index
+        final nextIndex = getNextCameraIndex(_controller!, _cameras);
+        debugPrint('Switching to camera index: $nextIndex');
+
+        // Dispose current controller
+        await _controller!.dispose();
+        _controller = null;
+
+        // Create new controller with the next camera
+        final newController = CameraController(
+          _cameras[nextIndex],
+          kIsWeb ? ResolutionPreset.max : ResolutionPreset.medium,
+          enableAudio: false,
+        );
+
+        await newController.initialize();
+
+        // Update controller and zoom levels
+        _controller = newController;
+        _minAvailableZoom = await _controller!.getMinZoomLevel();
+        _maxAvailableZoom = await _controller!.getMaxZoomLevel();
+        _currentScale = _minAvailableZoom;
+
         if (mounted) {
           setState(() {});
         }
       } catch (e) {
-        showSnackBar(context, 'Error switching camera');
+        showSnackBar(context, 'Error switching camera: $e');
+        // Try to reinitialize with first camera if switching fails
+        await _initializeCamera();
       }
+    } else {
+      showSnackBar(context, 'Only ${_cameras.length} camera(s) available');
     }
   }
 
@@ -173,6 +205,7 @@ class _CameraViewBodyState extends State<CameraViewBody>
                 pointers: _pointers,
                 onPointersDown: () => _pointers++,
                 onPointersUp: () => _pointers--,
+                onScaleUpdate: _updateCurrentScale,
               ),
               CameraControlsWidget(
                 onPickFromGallery: _onPickFromGallery,
@@ -192,5 +225,11 @@ class _CameraViewBodyState extends State<CameraViewBody>
         }
       },
     );
+  }
+
+  void _updateCurrentScale(double newScale) {
+    setState(() {
+      _currentScale = newScale;
+    });
   }
 }

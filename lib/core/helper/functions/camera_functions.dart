@@ -62,20 +62,30 @@ Future<XFile> takePicture(CameraController controller) async {
   return file;
 }
 
-/// Switch between available cameras
-Future<void> switchCamera(
+/// Get next camera index
+int getNextCameraIndex(
   CameraController controller,
   List<CameraDescription> cameras,
-) async {
-  if (cameras.length < 2) return;
+) {
+  if (cameras.length < 2) return 0;
 
   final int currentIndex = cameras.indexWhere(
     (camera) => camera.name == controller.description.name,
   );
 
-  final int newIndex = (currentIndex + 1) % cameras.length;
-  await controller.setDescription(cameras[newIndex]);
+  return (currentIndex + 1) % cameras.length;
 }
+
+/// Switch between available cameras
+// Future<void> switchCamera(
+//   CameraController controller,
+//   List<CameraDescription> cameras,
+// ) async {
+//   if (cameras.length < 2) return;
+
+//   // Update the global cameras list
+//   _cameras = cameras;
+// }
 
 /// Set flash mode with error handling
 Future<void> setFlashMode(CameraController controller, FlashMode mode) async {
@@ -164,5 +174,7 @@ Future<void> cycleFlashMode(
 
 /// Show snackbar message
 void showSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Center(child: Text(message))));
 }

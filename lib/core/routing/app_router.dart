@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/home/presentation/views/camera_view.dart';
 import '../../features/home/presentation/views/main_view.dart';
 import '../../features/splash/presentation/views/splash_view.dart';
 
@@ -8,7 +9,7 @@ abstract class AppRouter {
   static const String splashView = '/';
 
   static const String mainView = '/mainView';
-  static const String homeView = '/homeView';
+  static const String cameraView = '/cameraView';
 
   static final router = GoRouter(
     initialLocation: splashView,
@@ -23,9 +24,9 @@ abstract class AppRouter {
         ),
       ),
       GoRoute(
-        path: homeView,
+        path: cameraView,
         pageBuilder: (context, state) => CustomTransitionPage(
-          child: const SplashView(),
+          child: const CameraView(),
           key: state.pageKey,
           transitionsBuilder: _transitionsBuilder,
         ),

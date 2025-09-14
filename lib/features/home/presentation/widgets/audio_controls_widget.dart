@@ -71,7 +71,7 @@ class _AudioControlsWidgetState extends State<AudioControlsWidget> {
 
   void _startProgressTimer() {
     _stopProgressTimer(); // Stop any existing timer
-    _progressTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+    _progressTimer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
       if (!mounted ||
           _ttsService.playbackStateNotifier.value != PlaybackState.playing) {
         _stopProgressTimer();

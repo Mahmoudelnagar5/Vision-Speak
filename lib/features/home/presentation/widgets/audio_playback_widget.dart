@@ -1,9 +1,3 @@
-// Audio Playback Widget - Optimized Version
-//
-// Key Improvements:
-// - Consistent timer intervals (100ms)
-// - Unified button styling
-// - Better state management
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -228,7 +222,6 @@ class _AudioPlaybackWidgetState extends State<AudioPlaybackWidget> {
 
                 const SizedBox(width: 4),
 
-                // Stop button
                 // Download button
                 GestureDetector(
                   onTap: () =>

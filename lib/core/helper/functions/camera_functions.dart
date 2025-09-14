@@ -76,17 +76,6 @@ int getNextCameraIndex(
   return (currentIndex + 1) % cameras.length;
 }
 
-/// Switch between available cameras
-// Future<void> switchCamera(
-//   CameraController controller,
-//   List<CameraDescription> cameras,
-// ) async {
-//   if (cameras.length < 2) return;
-
-//   // Update the global cameras list
-//   _cameras = cameras;
-// }
-
 /// Set flash mode with error handling
 Future<void> setFlashMode(CameraController controller, FlashMode mode) async {
   if (!controller.value.isInitialized) return;

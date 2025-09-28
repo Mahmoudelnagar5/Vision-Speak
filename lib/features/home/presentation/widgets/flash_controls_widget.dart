@@ -21,27 +21,26 @@ class FlashControlsWidget extends StatelessWidget {
       child: Column(
         children: [
           // Flash mode button
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: IconButton(
-              icon: Icon(
-                getFlashIcon(flashMode),
-                color: flashMode == FlashMode.off ? Colors.grey : Colors.white,
-              ),
-              onPressed: onCycleFlashMode,
-              iconSize: 24,
-            ),
-          ),
-
+          // Container(
+          //   width: 50,
+          //   height: 50,
+          //   decoration: BoxDecoration(
+          //     color: Colors.black.withOpacity(0.5),
+          //     borderRadius: BorderRadius.circular(25),
+          //     border: Border.all(
+          //       color: Colors.white.withOpacity(0.3),
+          //       width: 1,
+          //     ),
+          //   ),
+          //   child: IconButton(
+          //     icon: Icon(
+          //       getFlashIcon(flashMode),
+          //       color: flashMode == FlashMode.off ? Colors.grey : Colors.white,
+          //     ),
+          //     onPressed: onCycleFlashMode,
+          //     iconSize: 24,
+          //   ),
+          // ),
           const SizedBox(height: 10),
 
           // Flash mode indicator

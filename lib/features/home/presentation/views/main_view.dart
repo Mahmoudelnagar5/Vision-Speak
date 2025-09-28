@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-<<<<<<< HEAD
 import 'Camera_view.dart';
-=======
-import 'camera_view.dart';
->>>>>>> 14496e2386762b2b631720e97b01fe2715d3ad33
 import '../widgets/custom_nav_bar.dart';
 
 class MainView extends StatefulWidget {

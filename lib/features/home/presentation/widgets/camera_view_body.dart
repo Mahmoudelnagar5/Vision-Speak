@@ -1,5 +1,4 @@
 import 'package:camera/camera.dart';
-<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,23 +7,6 @@ import '../manager/camera_cubit.dart';
 import 'camera_controls_widgets.dart';
 import 'image_preview_widget.dart';
 
-=======
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-
-import '../../../../core/helper/functions/camera_functions.dart';
-import 'camera_controls_widget.dart';
-import 'camera_preview_widget.dart';
-import 'flash_controls_widget.dart';
-import 'image_preview_widget.dart';
-
-/// Getting available cameras for testing.
-@visibleForTesting
-List<CameraDescription> get cameras => _cameras;
-List<CameraDescription> _cameras = <CameraDescription>[];
-
->>>>>>> 14496e2386762b2b631720e97b01fe2715d3ad33
 class CameraViewBody extends StatefulWidget {
   const CameraViewBody({super.key});
 
@@ -34,82 +16,20 @@ class CameraViewBody extends StatefulWidget {
 
 class _CameraViewBodyState extends State<CameraViewBody>
     with WidgetsBindingObserver {
-<<<<<<< HEAD
   double _zoomLevel = 1.0;
   double _minZoom = 1.0;
   double _maxZoom = 1.0;
   double _baseScale = 1.0;
-=======
-  CameraController? _controller;
-  late Future<void> _initializeControllerFuture = Future.value();
-  String? imagePath;
-  String extractedText = '';
-  late final TextRecognizer textRecognizer = TextRecognizer();
-  double _minAvailableZoom = 1.0;
-  double _maxAvailableZoom = 1.0;
-  double _currentScale = 1.0;
-  final double _baseScale = 1.0;
-
-  // Counting pointers (number of user fingers on screen)
-  int _pointers = 0;
-
-  // Camera settings
-  FlashMode _flashMode = FlashMode.auto;
->>>>>>> 14496e2386762b2b631720e97b01fe2715d3ad33
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-<<<<<<< HEAD
-=======
-    _initializeCamera();
-  }
-
-  Future<void> _initializeCamera() async {
-    try {
-      // First, get all available cameras
-      _cameras = await availableCameras();
-
-      final result = await initializeCamera();
-      if (result['controller'] != null) {
-        _controller = result['controller'];
-        _minAvailableZoom = result['minZoom'];
-        _maxAvailableZoom = result['maxZoom'];
-        _currentScale = _minAvailableZoom;
-        _initializeControllerFuture = Future.value();
-      } else {
-        _initializeControllerFuture = Future.error('No cameras available');
-      }
-    } catch (e) {
-      _initializeControllerFuture = Future.error(e);
-    }
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    final CameraController? cameraController = _controller;
-
-    // App state changed before we got the chance to initialize.
-    if (cameraController == null || !cameraController.value.isInitialized) {
-      return;
-    }
-
-    if (state == AppLifecycleState.inactive) {
-      cameraController.dispose();
-    } else if (state == AppLifecycleState.resumed) {
-      _initializeCamera();
-    }
->>>>>>> 14496e2386762b2b631720e97b01fe2715d3ad33
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-<<<<<<< HEAD
     super.dispose();
   }
 
@@ -118,96 +38,10 @@ class _CameraViewBodyState extends State<CameraViewBody>
     super.didChangeAppLifecycleState(state);
     final cubit = context.read<CameraCubit>();
     cubit.handleAppLifecycleState(state);
-=======
-    _controller?.dispose();
-    textRecognizer.close();
-    super.dispose();
-  }
-
-  // Wrapper methods using extracted functions
-  Future<void> _onPickFromGallery() async {
-    final pickedPath = await pickImageFromGallery();
-    if (pickedPath != null) {
-      imagePath = pickedPath;
-      extractedText = await extractTextFromImage(imagePath!, textRecognizer);
-      setState(() {});
-    }
-  }
-
-  Future<void> _onTakePicture() async {
-    if (_controller == null) return;
-
-    try {
-      final XFile file = await takePicture(_controller!);
-      imagePath = file.path;
-      extractedText = await extractTextFromImage(imagePath!, textRecognizer);
-      setState(() {});
-    } on CameraException catch (e) {
-      showSnackBar(context, 'Error taking picture: ${e.code}');
-    }
-  }
-
-  Future<void> _onSwitchCamera() async {
-    // Debug: Print camera information
-
-    if (_controller != null && _cameras.isNotEmpty && _cameras.length > 1) {
-      try {
-        // Get the next camera index
-        final nextIndex = getNextCameraIndex(_controller!, _cameras);
-        debugPrint('Switching to camera index: $nextIndex');
-
-        // Dispose current controller
-        await _controller!.dispose();
-        _controller = null;
-
-        // Create new controller with the next camera
-        final newController = CameraController(
-          _cameras[nextIndex],
-          kIsWeb ? ResolutionPreset.max : ResolutionPreset.medium,
-          enableAudio: false,
-        );
-
-        await newController.initialize();
-
-        // Update controller and zoom levels
-        _controller = newController;
-        _minAvailableZoom = await _controller!.getMinZoomLevel();
-        _maxAvailableZoom = await _controller!.getMaxZoomLevel();
-        _currentScale = _minAvailableZoom;
-
-        if (mounted) {
-          setState(() {});
-        }
-      } catch (e) {
-        showSnackBar(context, 'Error switching camera: $e');
-        // Try to reinitialize with first camera if switching fails
-        await _initializeCamera();
-      }
-    } else {
-      showSnackBar(context, 'Only ${_cameras.length} camera(s) available');
-    }
-  }
-
-  Future<void> _onCycleFlashMode() async {
-    if (_controller != null) {
-      await cycleFlashMode(_controller!, _flashMode, _setFlashMode);
-    }
-  }
-
-  // Helper method for setFlashMode
-  Future<void> _setFlashMode(FlashMode mode) async {
-    await setFlashMode(_controller!, mode);
-    if (mounted) {
-      setState(() {
-        _flashMode = mode;
-      });
-    }
->>>>>>> 14496e2386762b2b631720e97b01fe2715d3ad33
   }
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     final cubit = context.read<CameraCubit>();
 
     return BlocBuilder<CameraCubit, CameraState>(
@@ -302,66 +136,10 @@ class _CameraViewBodyState extends State<CameraViewBody>
               cubit.resetToCameraView();
             },
           );
-=======
-    if (imagePath != null) {
-      return ImagePreviewWidget(
-        imagePath: imagePath,
-        extractedText: extractedText,
-        onTakeAnotherPhoto: () {
-          imagePath = null;
-          extractedText = '';
-          setState(() {});
-        },
-      );
-    }
-    return FutureBuilder<void>(
-      future: _initializeControllerFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            !snapshot.hasError &&
-            _controller != null &&
-            _controller!.value.isInitialized) {
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              CameraPreviewWidget(
-                controller: _controller!,
-                currentScale: _currentScale,
-                baseScale: _baseScale,
-                minZoom: _minAvailableZoom,
-                maxZoom: _maxAvailableZoom,
-                pointers: _pointers,
-                onPointersDown: () => _pointers++,
-                onPointersUp: () => _pointers--,
-                onScaleUpdate: _updateCurrentScale,
-              ),
-              CameraControlsWidget(
-                onPickFromGallery: _onPickFromGallery,
-                onTakePicture: _onTakePicture,
-                onSwitchCamera: _onSwitchCamera,
-              ),
-              FlashControlsWidget(
-                flashMode: _flashMode,
-                onCycleFlashMode: _onCycleFlashMode,
-              ),
-            ],
-          );
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Camera not available: ${snapshot.error}'));
->>>>>>> 14496e2386762b2b631720e97b01fe2715d3ad33
         } else {
           return const Center(child: CircularProgressIndicator());
         }
       },
     );
   }
-<<<<<<< HEAD
-=======
-
-  void _updateCurrentScale(double newScale) {
-    setState(() {
-      _currentScale = newScale;
-    });
-  }
->>>>>>> 14496e2386762b2b631720e97b01fe2715d3ad33
 }

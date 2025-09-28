@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'home_view.dart';
+import 'Camera_view.dart';
 import '../widgets/custom_nav_bar.dart';
 
 class MainView extends StatefulWidget {
@@ -14,7 +14,7 @@ class _MainViewState extends State<MainView> {
   int _currentIndex = 0;
   late final PageController _pageController;
 
-  final List<Widget> _pages = [const HomeView()];
+  final List<Widget> _pages = [const CameraView()];
 
   @override
   void initState() {
